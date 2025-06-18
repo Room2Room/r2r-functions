@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "r2r-dev-a22ee",
+    "dev": "r2r-dev-a22ee",
+    "prod": "r2r-prod"
+  }
+} 
