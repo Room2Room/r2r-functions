@@ -5,7 +5,7 @@ const functions = require('firebase-functions');
 // =============================================================================
 
 const DATABASES = ['auburn', 'oxford'];
-const COLLECTIONS = ['bookings'];
+const COLLECTIONS = ['bookings', 'bookingDrafts', 'archivedBookings', 'bookingQuotes', 'contactMessages'];
 
 // Configuration
 const WEBHOOK_URL = functions.config().webhook?.url || 'https://your-api-server.com/api/MeilisearchWebhook';
