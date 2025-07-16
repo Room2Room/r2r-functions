@@ -27,8 +27,10 @@ console.log(`📊 Collections: [${COLLECTIONS.join(', ')}]`);
  * @param {string} id - Document ID
  * @param {string} collection - Collection name
  * @param {string} campus - auburn or oxford
+ * @param {object} beforeData - Document data before change (for change tracking)
+ * @param {object} afterData - Document data after change (for change tracking)
  */
-async function callWebhook(operation, data, id, collection, campus) {
+async function callWebhook(operation, data, id, collection, campus, beforeData = null, afterData = null) {
   console.log(`🚀 [${campus.toUpperCase()}] Starting webhook call: ${operation} ${collection}:${id}`);
   
   const payload = { 
@@ -37,7 +39,10 @@ async function callWebhook(operation, data, id, collection, campus) {
     id, 
     collection, 
     campus,
-    secret: WEBHOOK_SECRET
+    secret: WEBHOOK_SECRET,
+    // Include before/after data for change tracking (only for bookingDrafts)
+    beforeData: collection === 'bookingDrafts' ? beforeData : undefined,
+    afterData: collection === 'bookingDrafts' ? afterData : undefined
   };
   const payloadString = JSON.stringify(payload);
   
@@ -96,6 +101,10 @@ function createDocumentHandler(database, collection) {
     let operation;
     let data;
     
+    // Get before and after data for change tracking
+    const beforeData = change.before.exists ? change.before.data() : null;
+    const afterData = change.after.exists ? change.after.data() : null;
+    
     if (!change.before.exists && change.after.exists) {
       // Document was created
       operation = 'CREATE';
@@ -117,7 +126,7 @@ function createDocumentHandler(database, collection) {
       return;
     }
     
-    await callWebhook(operation, data, docId, collection, database);
+    await callWebhook(operation, data, docId, collection, database, beforeData, afterData);
     console.log(`✅ [${database.toUpperCase()}] ${operation} completed for: ${docId}`);
   };
 }
